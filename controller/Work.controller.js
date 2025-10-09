@@ -12,6 +12,7 @@ export const createWork = async (req, res) => {
       endTime,
       budget,
       totalMembers,
+      status,
     } = req.body;
 
     if (!Array.isArray(assignedTo)) assignedTo = [];
@@ -32,22 +33,19 @@ export const createWork = async (req, res) => {
       startTime,
       endTime,
       budget: budget || 0,
-      totalMembers: totalMembers || formattedAssignedTo.length, // use provided or default to assignedTo length
+      totalMembers: totalMembers || formattedAssignedTo.length,
       assignedTo: formattedAssignedTo,
       createdBy: req.user?._id || null,
+      status: status || "pending", // default to "pending"
     });
 
     const populatedWork = await Work.findById(work._id)
       .populate("createdBy", "name role")
       .populate("assignedTo.user", "name role");
 
-    res
-      .status(201)
-      .json({ message: "Work created successfully", work: populatedWork });
+    res.status(201).json({ message: "Work created successfully", work: populatedWork });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating work", error: error.message });
+    res.status(500).json({ message: "Error creating work", error: error.message });
   }
 };
 
@@ -59,9 +57,7 @@ export const getAllWorks = async (req, res) => {
       .populate("assignedTo.user", "name role");
     res.json(works);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching works", error: error.message });
+    res.status(500).json({ message: "Error fetching works", error: error.message });
   }
 };
 
@@ -76,9 +72,7 @@ export const getWorkById = async (req, res) => {
 
     res.json(work);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching work", error: error.message });
+    res.status(500).json({ message: "Error fetching work", error: error.message });
   }
 };
 
@@ -103,19 +97,23 @@ export const updateWork = async (req, res) => {
     // Update fields
     if (title !== undefined) work.title = title;
     if (description !== undefined) work.description = description;
-    if (status !== undefined) work.status = status;
+    if (status !== undefined) {
+      const validStatuses = ["pending", "in progress", "done", "completed"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+      work.status = status;
+    }
     if (dueDate !== undefined) work.dueDate = dueDate;
     if (startTime !== undefined) work.startTime = startTime;
     if (endTime !== undefined) work.endTime = endTime;
     if (budget !== undefined) work.budget = budget;
     if (totalMembers !== undefined) work.totalMembers = totalMembers;
 
-    // Only update assignedTo if provided (and preserve existing payment/violations)
+    // Update assignedTo if provided
     if (Array.isArray(assignedTo)) {
       const updatedAssigned = assignedTo.map((userId) => {
-        const existing = work.assignedTo.find(
-          (a) => a.user.toString() === userId
-        );
+        const existing = work.assignedTo.find((a) => a.user.toString() === userId);
         return (
           existing || {
             user: userId,
@@ -137,9 +135,7 @@ export const updateWork = async (req, res) => {
 
     res.json({ message: "Work updated successfully", work: populatedWork });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating work", error: error.message });
+    res.status(500).json({ message: "Error updating work", error: error.message });
   }
 };
 
@@ -154,9 +150,7 @@ export const updateStaffPayment = async (req, res) => {
 
     const assigned = work.assignedTo.find((a) => a.user.toString() === staffId);
     if (!assigned)
-      return res
-        .status(404)
-        .json({ message: "Staff not assigned to this work" });
+      return res.status(404).json({ message: "Staff not assigned to this work" });
 
     if (amountPaid !== undefined) assigned.amountPaid = amountPaid;
     if (paymentStatus) assigned.paymentStatus = paymentStatus;
@@ -167,14 +161,9 @@ export const updateStaffPayment = async (req, res) => {
       .populate("createdBy", "name role")
       .populate("assignedTo.user", "name role");
 
-    res.json({
-      message: "Staff payment updated successfully",
-      work: populatedWork,
-    });
+    res.json({ message: "Staff payment updated successfully", work: populatedWork });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating staff payment", error: error.message });
+    res.status(500).json({ message: "Error updating staff payment", error: error.message });
   }
 };
 
@@ -186,9 +175,7 @@ export const deleteWork = async (req, res) => {
 
     res.json({ message: "Work deleted successfully" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error deleting work", error: error.message });
+    res.status(500).json({ message: "Error deleting work", error: error.message });
   }
 };
 
@@ -201,18 +188,12 @@ export const updateStaffPerformance = async (req, res) => {
     const work = await Work.findById(workId);
     if (!work) return res.status(404).json({ message: "Work not found" });
 
-    const staffIndex = work.assignedTo.findIndex(
-      (s) => s.user.toString() === staffId
-    );
+    const staffIndex = work.assignedTo.findIndex((s) => s.user.toString() === staffId);
     if (staffIndex === -1)
-      return res
-        .status(404)
-        .json({ message: "Staff not assigned to this work" });
+      return res.status(404).json({ message: "Staff not assigned to this work" });
 
-    if (amountPaid !== undefined)
-      work.assignedTo[staffIndex].amountPaid = amountPaid;
-    if (paymentStatus)
-      work.assignedTo[staffIndex].paymentStatus = paymentStatus;
+    if (amountPaid !== undefined) work.assignedTo[staffIndex].amountPaid = amountPaid;
+    if (paymentStatus) work.assignedTo[staffIndex].paymentStatus = paymentStatus;
     if (violations) work.assignedTo[staffIndex].violations = violations;
     if (review !== undefined) work.assignedTo[staffIndex].review = review;
 
@@ -224,8 +205,6 @@ export const updateStaffPerformance = async (req, res) => {
     );
     res.json({ message: "Staff updated", work: populatedWork });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error updating staff", error: err.message });
+    res.status(500).json({ message: "Error updating staff", error: err.message });
   }
 };

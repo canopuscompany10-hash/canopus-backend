@@ -36,7 +36,7 @@ const workSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "in-progress", "done"],
+   enum: ["pending", "in progress", "done", "completed"], 
       default: "pending",
     },
 
