@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 4000;
 app.use(
   cors({
     origin: [
-      "https://canopuscompany1.netlify.app", // your client URL
+      "https://canopuscompany.netlify.app/", // your client URL
       "http://localhost:5173",
     ],
     credentials: true,
@@ -26,7 +26,7 @@ app.use(
 );
 app.use(express.json());
 
-// Connect to database
+// Connect to
 connectDB();
 
 // API routes
