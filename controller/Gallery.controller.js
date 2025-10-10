@@ -1,47 +1,59 @@
-import GalleryItem from "../models/Gallery.model.js";
+import Gallery from "../models/Gallery.model.js";
 
-// ✅ Add new image
+// 📸 Add gallery image
 export const addGalleryImage = async (req, res) => {
   try {
     const { image } = req.body;
+    if (!image) return res.status(400).json({ message: "Image URL is required" });
 
-    if (!image) {
-      return res.status(400).json({ message: "Image URL is required" });
-    }
-
-    const newImage = await GalleryItem.create({
-      image,
-      createdBy: req.user?._id, // optional, if auth is enabled
-    });
-
+    const newImage = await Gallery.create({ image });
     res.status(201).json(newImage);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Add gallery image error:", error);
+    res.status(500).json({ message: "Server error while adding image" });
   }
 };
 
-// ✅ Get all gallery images
+// 🖼️ Get all gallery images with pagination
 export const getGalleryImages = async (req, res) => {
   try {
-    const images = await GalleryItem.find().sort({ createdAt: -1 });
-    res.status(200).json(images);
+    let { page = 1, limit = 8 } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    const skip = (page - 1) * limit;
+
+    const total = await Gallery.countDocuments();
+    const images = await Gallery.find()
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      images,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Get gallery images error:", error);
+    res.status(500).json({ message: "Server error while fetching images" });
   }
 };
 
-// ✅ Delete gallery image
+// ❌ Delete gallery image
 export const deleteGalleryImage = async (req, res) => {
   try {
     const { id } = req.params;
-    const image = await GalleryItem.findByIdAndDelete(id);
+    const deleted = await Gallery.findByIdAndDelete(id);
 
-    if (!image) {
+    if (!deleted) {
       return res.status(404).json({ message: "Image not found" });
     }
 
     res.status(200).json({ message: "Image deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Delete gallery image error:", error);
+    res.status(500).json({ message: "Server error while deleting image" });
   }
 };

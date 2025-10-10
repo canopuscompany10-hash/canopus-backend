@@ -1,19 +1,33 @@
 import express from "express";
 import {
   createMenuItem,
-  getMenuItems,
-  getMenuItemById,
-  updateMenuItem,
+  deleteCategory,
   deleteMenuItem,
+  editCategory,
+  getCategories,
+  getMenuItemById,
+  getMenuItems,
+  updateMenuItem,
+  createCategory,
 } from "../controller/Menu.controller.js";
 
 const MenuRouter = express.Router();
 
-// RESTful paths
-MenuRouter.get("/", getMenuItems); // GET /api/menu
-MenuRouter.post("/", createMenuItem); // POST /api/menu
-MenuRouter.get("/:id", getMenuItemById); // GET /api/menu/:id
-MenuRouter.put("/:id", updateMenuItem); // PUT /api/menu/:id
-MenuRouter.delete("/:id", deleteMenuItem); // DELETE /api/menu/:id
+// ------------------------
+// Category Routes (must be first)
+// ------------------------
+MenuRouter.get("/categories", getCategories);           
+MenuRouter.post("/categories", createCategory);         
+MenuRouter.put("/categories/:oldCategory", editCategory); 
+MenuRouter.delete("/categories/:category", deleteCategory); 
+
+// ------------------------
+// Menu Item Routes
+// ------------------------
+MenuRouter.get("/", getMenuItems);               
+MenuRouter.get("/:id", getMenuItemById);         
+MenuRouter.post("/", createMenuItem);            
+MenuRouter.put("/:id", updateMenuItem);          
+MenuRouter.delete("/:id", deleteMenuItem);       
 
 export default MenuRouter;

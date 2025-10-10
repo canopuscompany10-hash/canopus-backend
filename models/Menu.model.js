@@ -16,9 +16,8 @@ const menuItemSchema = new mongoose.Schema(
       required: true,
     },
     category: {
-      type: String,
+      type: String, // now any string is allowed
       required: true,
-      enum: ["Starter", "Main Course", "Drinks", "Offers", "Our Special"],
     },
     image: {
       type: String, // store image URL
@@ -26,7 +25,7 @@ const menuItemSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // optional, if you have admin model
+      ref: "User", // optional
     },
   },
   { timestamps: true }
