@@ -8,6 +8,7 @@ import {
   updateWork,
   updateStaffPerformance,
   deleteWork,
+  updateWorkStatus, // new controller
 } from "../controller/Work.controller.js";
 import { adminOnly, protect } from "../middleware/authMiddlewares.js";
 
@@ -20,5 +21,8 @@ WorkRouter.delete("/:id", protect, adminOnly, deleteWork);
 
 // Staff payment/performance
 WorkRouter.patch("/:workId/staff/:staffId", protect, adminOnly, updateStaffPerformance);
+
+//  Update work status
+WorkRouter.patch("/:id/status", protect, adminOnly, updateWorkStatus);
 
 export default WorkRouter;

@@ -114,3 +114,25 @@ export const deleteWork = async (req, res) => {
     res.status(500).json({ message: "Failed to delete work" });
   }
 };
+
+export const updateWorkStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; // ✅ expect string
+
+    if (!status) return res.status(400).json({ message: "Status is required" });
+
+    const work = await Work.findByIdAndUpdate(
+      id,
+      { status }, // string only
+      { new: true }
+    ).populate("assignedTo.user", "name email role");
+
+    if (!work) return res.status(404).json({ message: "Work not found" });
+
+    res.status(200).json({ work });
+  } catch (err) {
+    console.error("Update Work Status Error:", err);
+    res.status(500).json({ message: "Failed to update work status" });
+  }
+};
