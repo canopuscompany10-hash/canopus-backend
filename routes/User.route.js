@@ -9,6 +9,7 @@ import {
   updateNotifications,
   getSomeUser,
   createUser,
+  deleteUser,
 } from "../controller/User.controller.js";
 import { adminOnly, protect } from "../middleware/authMiddlewares.js";
 
@@ -24,5 +25,6 @@ UserRouter.get("/all", protect, adminOnly, getAllUsers);
 UserRouter.get("/:id", getUser);
 UserRouter.put("/:id", updateUser);
 UserRouter.patch("/:id/notifications", updateNotifications);
+UserRouter.delete("/:id", deleteUser);
 
 export default UserRouter;

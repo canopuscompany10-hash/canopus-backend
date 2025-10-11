@@ -11,19 +11,14 @@ import {
 } from "../controller/Work.controller.js";
 import { adminOnly, protect } from "../middleware/authMiddlewares.js";
 
-// 🔹 Work CRUD Routes
+// Work CRUD routes
 WorkRouter.post("/", protect, adminOnly, createWork);
 WorkRouter.get("/", getAllWorks);
 WorkRouter.get("/:id", getWorkById);
-WorkRouter.put("/:id", updateWork);
-WorkRouter.delete("/:id", deleteWork);
+WorkRouter.put("/:id", protect, adminOnly, updateWork);
+WorkRouter.delete("/:id", protect, adminOnly, deleteWork);
 
-// 🔹 Staff performance updates
-WorkRouter.patch(
-  "/:workId/staff/:staffId",
-  protect,
-  adminOnly,
-  updateStaffPerformance
-);
+// Staff payment/performance
+WorkRouter.patch("/:workId/staff/:staffId", protect, adminOnly, updateStaffPerformance);
 
 export default WorkRouter;

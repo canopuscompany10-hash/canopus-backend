@@ -22,13 +22,13 @@ const createAdmin = async () => {
       process.exit(0);
     }
 
-    const hashedPassword = await bcrypt.hash("pachuadaaa", 10); // <-- Change password here
+    const hashedPassword = await bcrypt.hash("pachuadaaasuperadmin", 10); // <-- Change password here
 
     const admin = new User({
       name: "Fayiz",
       email: "fayizpachu217@gmail.com", // <-- Change email if you want
       password: hashedPassword,
-      role: "admin",
+     role: "superadmin",
       notifications: {
         email: true,
         whatsapp: true,

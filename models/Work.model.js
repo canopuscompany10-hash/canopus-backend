@@ -1,28 +1,24 @@
 import mongoose from "mongoose";
 
-// Sub-schema for users assigned/attended to a work
+// Sub-schema for assigned staff
 const assignedUserSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
-    startTime: { type: Date }, // Actual start time
-    endTime: { type: Date }, // Actual end time
-
+    startTime: { type: Date },
+    endTime: { type: Date },
     violations: [
       {
-        reason: { type: String, required: true }, // Violation reason
-        penalty: { type: Number, default: 0 }, // Salary deduction
+        reason: { type: String, required: true },
+        penalty: { type: Number, default: 0 },
         date: { type: Date, default: Date.now },
       },
     ],
-
-    review: { type: String, default: "" },
-
     paymentStatus: {
       type: String,
       enum: ["pending", "completed"],
       default: "pending",
     },
+    amountPaid: { type: Number, default: 0 }, // Amount paid per staff
   },
   { _id: false }
 );
@@ -31,15 +27,18 @@ const workSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
-    assignedTo: [assignedUserSchema], // People already doing the work
+    assignedTo: [assignedUserSchema],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-
     status: {
       type: String,
-   enum: ["pending", "in progress", "done", "completed"], 
+      enum: ["pending", "in progress", "done", "completed"],
       default: "pending",
     },
-
+    overallPaymentStatus: {
+      type: String,
+      enum: ["pending", "completed"],
+      default: "pending", // ✅ Overall work payment status
+    },
     dueDate: { type: Date },
     startTime: { type: Date },
     endTime: { type: Date },
@@ -48,6 +47,16 @@ const workSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Optional: Add a method to recalc overallPaymentStatus
+workSchema.methods.recalculatePaymentStatus = function () {
+  if (this.assignedTo.every((staff) => staff.paymentStatus === "completed")) {
+    this.overallPaymentStatus = "completed";
+  } else {
+    this.overallPaymentStatus = "pending";
+  }
+  return this.overallPaymentStatus;
+};
 
 const Work = mongoose.models.Work || mongoose.model("Work", workSchema);
 export default Work;

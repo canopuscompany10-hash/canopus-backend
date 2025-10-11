@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     password: { type: String, required: true, minlength: 6 },
-    role: { type: String, enum: ["admin", "staff"], default: "staff" },
+    role: { type: String, enum: ["admin", "staff","superadmin"], default: "staff" },
     profilePic: { type: String, default: "" },
     notifications: {
       email: { type: Boolean, default: true },
