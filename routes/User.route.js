@@ -10,6 +10,8 @@ import {
   getSomeUser,
   createUser,
   deleteUser,
+  forgotPassword,
+  resetPassword,
 } from "../controller/User.controller.js";
 import { adminOnly, protect } from "../middleware/authMiddlewares.js";
 
@@ -26,5 +28,10 @@ UserRouter.get("/:id", getUser);
 UserRouter.put("/:id", updateUser);
 UserRouter.patch("/:id/notifications", updateNotifications);
 UserRouter.delete("/:id", deleteUser);
+
+
+
+UserRouter.post("/forgot-password", forgotPassword);
+UserRouter.post("/reset-password/:token", resetPassword);
 
 export default UserRouter;
