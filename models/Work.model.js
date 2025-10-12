@@ -31,13 +31,13 @@ const workSchema = new mongoose.Schema(
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: {
       type: String,
-      enum: ["pending", "in progress", "done", "completed"],
+      enum: ["pending", "in progress", "done", "completed" , "due"],
       default: "pending",
     },
     overallPaymentStatus: {
       type: String,
       enum: ["pending", "completed"],
-      default: "pending", // ✅ Overall work payment status
+      default: "pending", 
     },
     dueDate: { type: Date },
     startTime: { type: Date },

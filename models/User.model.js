@@ -11,18 +11,17 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     password: { type: String, required: true, minlength: 6 },
-    role: { type: String, enum: ["admin", "staff","superadmin"], default: "staff" },
+    role: { type: String, enum: ["admin", "staff", "superadmin"], default: "staff" },
     profilePic: { type: String, default: "" },
     notifications: {
       email: { type: Boolean, default: true },
       whatsapp: { type: Boolean, default: true },
     },
+    totalWorkCompleted: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-// ✅ Prevent OverwriteModelError
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;
-// v

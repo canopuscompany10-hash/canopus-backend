@@ -2,6 +2,7 @@ import User from "../models/User.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import Work from "../models/Work.model.js";
 
 // Generate JWT
 const generateToken = (id) =>
@@ -29,6 +30,7 @@ export const loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
         salary: user.salary,
+        totalWorkCompleted: user.totalWorkCompleted, // ✅ new field
         notifications: user.notifications,
       },
     });
@@ -137,6 +139,7 @@ export const createUser = async (req, res) => {
       password: hashedPassword,
       role: role.toLowerCase(),
       salary: salary || 0,
+      totalWorkCompleted: 0, 
     });
 
     await newUser.save();
@@ -149,6 +152,7 @@ export const createUser = async (req, res) => {
         email: newUser.email,
         role: newUser.role,
         salary: newUser.salary,
+        totalWorkCompleted: newUser.totalWorkCompleted,
       },
     });
   } catch (err) {
@@ -156,7 +160,7 @@ export const createUser = async (req, res) => {
   }
 };
 
-// ✅ DELETE USER
+// DELETE USER
 export const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -172,9 +176,7 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-
-
-
+// FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -189,7 +191,7 @@ export const forgotPassword = async (req, res) => {
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-    // ✅ Setup email transport
+    // Setup email transport
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -219,6 +221,7 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
+// RESET PASSWORD
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
@@ -236,5 +239,49 @@ export const resetPassword = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: "Invalid or expired token." });
+  }
+};export const getUsersWithWorkCompleted = async (req, res) => {
+  try {
+    const users = await User.find({});
+    const results = await Promise.all(
+      users.map(async (user) => {
+        try {
+          const completedWorkCount = await Work.countDocuments({
+            assignedTo: { $elemMatch: { user: user._id } },
+            status: "completed",
+          });
+          return { ...user.toObject(), totalWorkCompleted: completedWorkCount };
+        } catch (err) {
+          console.error("Error counting work for user:", user._id, err);
+          return { ...user.toObject(), totalWorkCompleted: 0 };
+        }
+      })
+    );
+    res.status(200).json(results);
+  } catch (err) {
+    console.error("Error fetching users with work:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getUserWithWorkCompleted = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const completedWorkCount = await Work.countDocuments({
+      assignedTo: { $elemMatch: { user: user._id } },
+      status: "completed",
+    });
+
+    res.status(200).json({
+      ...user.toObject(),
+      totalWorkCompleted: completedWorkCount,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };

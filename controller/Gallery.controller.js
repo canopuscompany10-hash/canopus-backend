@@ -1,6 +1,6 @@
 import Gallery from "../models/Gallery.model.js";
 
-// 📸 Add gallery image
+//  Add gallery image
 export const addGalleryImage = async (req, res) => {
   try {
     const { image } = req.body;
@@ -14,7 +14,7 @@ export const addGalleryImage = async (req, res) => {
   }
 };
 
-// 🖼️ Get all gallery images with pagination
+//  Get all gallery images with pagination
 export const getGalleryImages = async (req, res) => {
   try {
     let { page = 1, limit = 8 } = req.query;
@@ -41,7 +41,7 @@ export const getGalleryImages = async (req, res) => {
   }
 };
 
-// ❌ Delete gallery image
+//  Delete gallery image
 export const deleteGalleryImage = async (req, res) => {
   try {
     const { id } = req.params;

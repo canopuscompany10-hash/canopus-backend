@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 
-// 🔹 Verify token and attach user to request
+//  Verify token and attach user to request
 export const protect = async (req, res, next) => {
   try {
     let token;
@@ -37,7 +37,7 @@ export const protect = async (req, res, next) => {
   }
 };
 
-// 🔹 Admin-only access
+//  Admin-only access
 export const adminOnly = (req, res, next) => {
   if (!req.user || req.user.role !== "admin" && req.user.role !== "superadmin") {
     return res.status(403).json({ message: "Access denied — Admins only" });

@@ -7,25 +7,25 @@ const menuItemSchema = new mongoose.Schema(
       type: String,
       required: [true, "Menu item name is required"],
     },
-    description: {
+    // description: {
+    //   type: String,
+    //   required: true,
+    // },
+    // price: {
+    //   type: Number,
+    //   required: true,
+    // },
+    category: {
       type: String,
       required: true,
     },
-    price: {
-      type: Number,
-      required: true,
-    },
-    category: {
-      type: String, // now any string is allowed
-      required: true,
-    },
     image: {
-      type: String, // store image URL
+      type: String,
       default: "",
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // optional
+      ref: "User", 
     },
   },
   { timestamps: true }

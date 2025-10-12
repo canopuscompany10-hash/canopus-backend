@@ -12,18 +12,22 @@ import {
   deleteUser,
   forgotPassword,
   resetPassword,
+  getUsersWithWorkCompleted,
+  getUserWithWorkCompleted,
 } from "../controller/User.controller.js";
 import { adminOnly, protect } from "../middleware/authMiddlewares.js";
 
-// 🔹 Public Routes
+//  Public Routes
 UserRouter.post("/login", loginUser);
 
-// 🔹 Admin / Protected Routes
+//  Admin / Protected Routes
+
 UserRouter.post("/create", protect, adminOnly, createUser);
 UserRouter.get("/roles/list", getSomeUser);
 UserRouter.get("/all", protect, adminOnly, getAllUsers);
+UserRouter.get("/with-work", getUsersWithWorkCompleted);
+UserRouter.get("/with-work/:id", getUserWithWorkCompleted);
 
-// 🔹 Dynamic Routes (placed last to prevent route conflicts)
 UserRouter.get("/:id", getUser);
 UserRouter.put("/:id", updateUser);
 UserRouter.patch("/:id/notifications", updateNotifications);

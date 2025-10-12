@@ -8,6 +8,7 @@ import GalleryRouter from "./routes/Gallery.route.js";
 import MenuRouter from "./routes/Menu.route.js";
 
 import WorkRouter from "./routes/Work.route.js";
+import WeddingRouter from "./routes/Wedding.route.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use("/api/user", UserRouter);
 app.use("/api/menu", MenuRouter);
 app.use("/api/gallery", GalleryRouter);
 app.use("/api/work", WorkRouter);
+app.use("/api/weddings", WeddingRouter)
 
 
 // Start server

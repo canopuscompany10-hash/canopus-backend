@@ -3,16 +3,13 @@ import mongoose from "mongoose";
 import MenuItem from "../models/Menu.model.js";
 import Category from "../models/Category.model.js";
 
-// ------------------------
-// Menu Item Controllers
-// ------------------------
 
-// Create new menu item with dynamic/custom category// Create new menu item with validation for image
+// Create new menu item with dynamic/custom category
 export const createMenuItem = async (req, res) => {
   try {
-    const { name, description, price, category, image, createdBy } = req.body;
-
-    if (!name || !description || !price || !category || !image) {
+    const { name, price, category, image, createdBy } = req.body;
+// || !price
+    if (!name  || !category || !image) {
       return res.status(400).json({ message: "All fields including image are required" });
     }
 
@@ -26,21 +23,22 @@ export const createMenuItem = async (req, res) => {
 
     const newItem = await MenuItem.create({
       name,
-      description,
       price,
       category,
       image,
       createdBy,
     });
 
-    res.status(201).json(newItem);
+    // Return without description
+    const { _id, name: itemName, price: itemPrice, category: itemCategory, image: itemImage } = newItem;
+    res.status(201).json({ _id, name: itemName, price: itemPrice, category: itemCategory, image: itemImage });
   } catch (error) {
     console.error("Create menu item error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update menu item with image validation
+// Update menu item
 export const updateMenuItem = async (req, res) => {
   try {
     const { id } = req.params;
@@ -66,38 +64,31 @@ export const updateMenuItem = async (req, res) => {
       }
     }
 
-    res.status(200).json(updatedItem);
+    // Return without description
+    const { _id, name: itemName, price: itemPrice, category: itemCategory, image: itemImage } = updatedItem;
+    res.status(200).json({ _id, name: itemName, price: itemPrice, category: itemCategory, image: itemImage });
   } catch (error) {
     console.error("Update menu item error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-
-// Get paginated menu items
+// Get all menu items (no pagination)
 export const getMenuItems = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    const totalCount = await MenuItem.countDocuments();
-    const totalPages = Math.ceil(totalCount / limit);
-
     const items = await MenuItem.find()
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
+      .select("-description") // remove description field
       .lean();
 
-    res.status(200).json({ items, totalPages, totalCount });
+    res.status(200).json({ items, totalCount: items.length });
   } catch (error) {
     console.error("Get menu items error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Get menu item by ID with validation
+// Get menu item by ID (no description)
 export const getMenuItemById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -106,7 +97,7 @@ export const getMenuItemById = async (req, res) => {
       return res.status(400).json({ message: "Invalid menu item ID" });
     }
 
-    const item = await MenuItem.findById(id).lean();
+    const item = await MenuItem.findById(id).select("-description").lean();
     if (!item) return res.status(404).json({ message: "Menu item not found" });
 
     res.status(200).json(item);
@@ -115,9 +106,6 @@ export const getMenuItemById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// Update menu item
-
 
 // Delete menu item
 export const deleteMenuItem = async (req, res) => {
@@ -138,9 +126,9 @@ export const deleteMenuItem = async (req, res) => {
   }
 };
 
-// ------------------------
-// Category Controllers
-// ------------------------
+
+// Catergory   section
+
 
 // Get all categories
 export const getCategories = async (req, res) => {
@@ -158,7 +146,6 @@ export const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) return res.status(400).json({ message: "Category name is required" });
-
     if (["All", "Uncategorized"].includes(name)) {
       return res.status(400).json({ message: `Cannot create '${name}' category` });
     }
@@ -181,10 +168,7 @@ export const deleteCategory = async (req, res) => {
     if (!category) return res.status(400).json({ message: "Category is required" });
     if (category === "All") return res.status(400).json({ message: "Cannot delete 'All' category" });
 
-    // Move items to default category
     await MenuItem.updateMany({ category }, { category: "Uncategorized" });
-
-    // Remove category from DB
     await Category.findOneAndDelete({ name: category });
 
     res.status(200).json({ message: `Category '${category}' deleted and items moved to 'Uncategorized'` });
@@ -204,10 +188,8 @@ export const editCategory = async (req, res) => {
       return res.status(400).json({ message: "Both old and new category names are required" });
     if (oldCategory === "All") return res.status(400).json({ message: "Cannot edit 'All' category" });
 
-    // Update all menu items
     await MenuItem.updateMany({ category: oldCategory }, { category: newCategory });
 
-    // Update category in DB
     const categoryDoc = await Category.findOne({ name: oldCategory });
     if (categoryDoc) {
       categoryDoc.name = newCategory;
