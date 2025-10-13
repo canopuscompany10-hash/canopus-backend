@@ -1,23 +1,23 @@
+
 import sgMail from "@sendgrid/mail";
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv from "dotenv"
 
+dotenv.config()
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+console.log(process.env.SENDGRID_API_KEY, "ithane athe");
 
-const sendEmail = async (to, subject, html) => {
+export const sendEmail = async (to, subject, html) => {
   try {
-    await sgMail.send({
+    const msg = {
       to,
-      from: process.env.EMAIL_USER, // verified sender
+      from: "fayizpachu217@gmail.com", // must be verified
       subject,
       html,
-    });
-    console.log(`Email sent to ${to}`);
-    return true;
-  } catch (err) {
-    console.error("Error sending email:", err);
-    return false;
+    };
+    await sgMail.send(msg);
+    console.log("✅ Email sent successfully to:", to);
+  } catch (error) {
+    console.error("❌ Error sending email:", error);
   }
 };
 
-export default sendEmail;

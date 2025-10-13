@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import Work from "../models/Work.model.js";
-import sendEmail from "../utils/sendMail.js";
+import { sendEmail } from "../utils/sendMail.js";
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
