@@ -1,27 +1,27 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config();
 
+// Create transporter with SendGrid
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.sendgrid.net",
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER, // your Gmail
-    pass: process.env.EMAIL_PASS, // app password
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY,
   },
 });
 
-const sendEmail = async (to, subject, text) => {
+const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: `"Work Manager" <${process.env.EMAIL_USER}>`,
+      from: `"Manager" <canopuscompany10@gmail.com>`, // valid email
       to,
       subject,
-      text,
+      html,
     });
     console.log(`Email sent to ${to}`);
   } catch (err) {
     console.error("Error sending email:", err);
-    throw err;
   }
 };
 
