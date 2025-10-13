@@ -160,7 +160,7 @@ export const createUser = async (req, res) => {
   <p>This link expires in 24 hours.</p>
 `;
 
-await sendEmail(email, "Set your Work Manager password", html);
+ sendEmail(email, "Set your Work Manager password", html);
 
     res.status(201).json({
       message: "User created successfully. Email sent for password setup.",
