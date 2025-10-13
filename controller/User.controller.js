@@ -153,12 +153,20 @@ const setPasswordLink = `${process.env.CLIENT_URL}/set-password/${token}`;
 
     // Send email
     const subject = "Set your password for Work Manager";
-    const html = `
-  <h3>Hi ${name},</h3>
-  <p>You have been added as a ${role} in Work Manager.</p>
-  <a href="${setPasswordLink}" style="background:#e11d48;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Set Password</a>
-  <p>This link expires in 24 hours.</p>
+const html = `
+  <div style="font-family: Arial, sans-serif; text-align: center;">
+    <h3>Hi ${name},</h3>
+    <p>You have been added as a ${role} in Work Manager.</p>
+    <a href="${setPasswordLink}" 
+       style="display: inline-block; background-color: #e11d48; color: white; 
+              padding: 12px 24px; text-decoration: none; border-radius: 6px; 
+              font-weight: bold; font-size: 16px;">
+      Set Password
+    </a>
+    <p style="margin-top: 10px;">This link expires in 24 hours.</p>
+  </div>
 `;
+
 
 await sendEmail(email,subject, html);
 
