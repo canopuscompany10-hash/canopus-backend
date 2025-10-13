@@ -149,7 +149,7 @@ export const createUser = async (req, res) => {
       { expiresIn: "1d" } // valid for 1 day
     );
 
-    const setPasswordLink = `${process.env.CLIENT_URL}/set-password/${token}`;
+const setPasswordLink = `${process.env.CLIENT_URL}/set-password/${token}`;
 
     // Send email
     const subject = "Set your password for Work Manager";
