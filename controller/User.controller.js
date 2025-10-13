@@ -160,7 +160,7 @@ const setPasswordLink = `${process.env.CLIENT_URL}/set-password/${token}`;
   <p>This link expires in 24 hours.</p>
 `;
 
- sendEmail(email, "Set your Work Manager password", html);
+await sendEmail(email, "Set your Work Manager password", html);
 
     res.status(201).json({
       message: "User created successfully. Email sent for password setup.",
