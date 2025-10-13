@@ -160,7 +160,7 @@ export const createUser = async (req, res) => {
       ${setPasswordLink}
       This link expires in 24 hours.
     `;
-    await sendEmail(email, subject, text);
+     sendEmail(email, subject, text);
 
     res.status(201).json({
       message: "User created successfully. Email sent for password setup.",
