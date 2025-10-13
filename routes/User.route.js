@@ -14,6 +14,7 @@ import {
   resetPassword,
   getUsersWithWorkCompleted,
   getUserWithWorkCompleted,
+  setPassword,
 } from "../controller/User.controller.js";
 import { adminOnly, protect } from "../middleware/authMiddlewares.js";
 
@@ -37,5 +38,8 @@ UserRouter.delete("/:id", deleteUser);
 
 UserRouter.post("/forgot-password", forgotPassword);
 UserRouter.post("/reset-password/:token", resetPassword);
+
+UserRouter.post("/set-password/:token", setPassword);
+
 
 export default UserRouter;

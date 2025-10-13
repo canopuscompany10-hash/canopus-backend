@@ -3,8 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import Work from "../models/Work.model.js";
-
-// Generate JWT
+import sendEmail from "../utils/sendMail.js";
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
@@ -122,40 +121,59 @@ export const getAllUsers = async (req, res) => {
 // CREATE USER (Admin only)
 export const createUser = async (req, res) => {
   try {
-    const { name, email, password, role, salary } = req.body;
+    const { name, email, role, salary } = req.body;
 
-    if (!name || !email || !password || !role)
+    if (!name || !email || !role)
       return res.status(400).json({ message: "All fields are required" });
 
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "Email already exists" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // Create user with empty password
     const newUser = new User({
       name,
       email: email.toLowerCase(),
-      password: hashedPassword,
+      password: "", // user will set later
       role: role.toLowerCase(),
       salary: salary || 0,
-      totalWorkCompleted: 0, 
+      totalWorkCompleted: 0,
     });
 
     await newUser.save();
 
+    // Generate temporary token for password setup
+    const token = jwt.sign(
+      { id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" } // valid for 1 day
+    );
+
+    const setPasswordLink = `${process.env.CLIENT_URL}/set-password/${token}`;
+
+    // Send email
+    const subject = "Set your password for Work Manager";
+    const text = `
+      Hi ${name},
+      You have been added as a ${role} in Work Manager.
+      Click the link below to set your password and login:
+      ${setPasswordLink}
+      This link expires in 24 hours.
+    `;
+    await sendEmail(email, subject, text);
+
     res.status(201).json({
-      message: "User created successfully",
+      message: "User created successfully. Email sent for password setup.",
       user: {
         _id: newUser._id,
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
         salary: newUser.salary,
-        totalWorkCompleted: newUser.totalWorkCompleted,
       },
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -220,6 +238,33 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Error sending reset link." });
   }
 };
+
+
+
+
+export const setPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    if (!password || password.length < 6)
+      return res.status(400).json({ message: "Password must be at least 6 characters." });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: "Password set successfully. You can now login." });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: "Invalid or expired token." });
+  }
+};
+
 
 // RESET PASSWORD
 export const resetPassword = async (req, res) => {

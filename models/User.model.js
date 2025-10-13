@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true, minlength: 6 },
+password: { type: String, required: false, default: "" },
     role: { type: String, enum: ["admin", "staff", "superadmin"], default: "staff" },
     profilePic: { type: String, default: "" },
     notifications: {
