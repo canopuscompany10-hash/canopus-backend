@@ -1,33 +1,22 @@
-import nodemailer from "nodemailer";
-
+import sgMail from "@sendgrid/mail";
 import dotenv from "dotenv";
-
-
-
-
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 587,
-  secure: false, // TLS
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_API_KEY,
-  },
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendEmail = async (to, subject, html) => {
   try {
-    await transporter.sendMail({
-      from: `"Work Manager" <${process.env.EMAIL_USER}>`,
+    await sgMail.send({
       to,
+      from: process.env.EMAIL_USER, // verified sender
       subject,
       html,
     });
     console.log(`Email sent to ${to}`);
+    return true;
   } catch (err) {
     console.error("Error sending email:", err);
+    return false;
   }
 };
 
