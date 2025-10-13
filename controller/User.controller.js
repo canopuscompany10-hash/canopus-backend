@@ -153,14 +153,14 @@ export const createUser = async (req, res) => {
 
     // Send email
     const subject = "Set your password for Work Manager";
-    const text = `
-      Hi ${name},
-      You have been added as a ${role} in Work Manager.
-      Click the link below to set your password and login:
-      ${setPasswordLink}
-      This link expires in 24 hours.
-    `;
-    await sendEmail(email, subject, text);
+    const html = `
+  <h3>Hi ${name},</h3>
+  <p>You have been added as a ${role} in Work Manager.</p>
+  <a href="${setPasswordLink}" style="background:#e11d48;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Set Password</a>
+  <p>This link expires in 24 hours.</p>
+`;
+
+await sendEmail(email, "Set your Work Manager password", html);
 
     res.status(201).json({
       message: "User created successfully. Email sent for password setup.",

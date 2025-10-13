@@ -1,12 +1,13 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
-// Create transporter with SendGrid
 const transporter = nodemailer.createTransport({
   host: "smtp.sendgrid.net",
   port: 587,
-  secure: false,
+  secure: false, // TLS false for 587
   auth: {
-    user: "apikey",
+    user: "apikey",               // literally "apikey"
     pass: process.env.SENDGRID_API_KEY,
   },
 });
@@ -14,7 +15,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: `"Manager" <canopuscompany10@gmail.com>`, // valid email
+      from: `"Work Manager" <fayizpachu217@gmail.com>`, // must be verified in SendGrid
       to,
       subject,
       html,
