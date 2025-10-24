@@ -204,6 +204,7 @@ export const deleteUser = async (req, res) => {
 };
 
 // FORGOT PASSWORD
+// FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -218,28 +219,15 @@ export const forgotPassword = async (req, res) => {
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-    // Setup email transport
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    const subject = "Reset your Canopus account password";
+    const html = `
+      <p>Hello ${user.name || "User"},</p>
+      <p>Click below to reset your password:</p>
+      <a href="${resetLink}" style="color:#fff;background:#e11d48;padding:10px 20px;text-decoration:none;border-radius:6px;">Reset Password</a>
+      <p>This link expires in 15 minutes.</p>
+    `;
 
-    const mailOptions = {
-      from: `"Canopus Company" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Reset your Canopus account password",
-      html: `
-        <p>Hello ${user.name || "User"},</p>
-        <p>Click below to reset your password:</p>
-        <a href="${resetLink}" style="color:#fff;background:#e11d48;padding:10px 20px;text-decoration:none;border-radius:6px;">Reset Password</a>
-        <p>This link expires in 15 minutes.</p>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
+    await sendEmail(email, subject, html);
 
     res.json({ message: "Reset link sent to your email." });
   } catch (err) {
@@ -247,6 +235,7 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Error sending reset link." });
   }
 };
+
 
 
 
@@ -266,6 +255,18 @@ export const setPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
     await user.save();
+
+    // Send confirmation email
+    const subject = "Password Set Successfully";
+    const html = `
+      <div style="font-family: Arial, sans-serif;">
+        <h3>Hi ${user.name},</h3>
+        <p>Your password has been set successfully. You can now log in to your account.</p>
+        <p>If you did not perform this action, please contact support immediately.</p>
+      </div>
+    `;
+
+    await sendEmail(user.email, subject, html);
 
     res.json({ message: "Password set successfully. You can now login." });
   } catch (err) {

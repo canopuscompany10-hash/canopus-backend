@@ -37,7 +37,7 @@ const createAdmin = async () => {
     });
 
     await admin.save();
-    console.log("✅ Superadmin created successfully!");
+    console.log("Superadmin injected successfully!");
     process.exit(0);
   } catch (err) {
     console.error("❌ Error creating admin:", err);
