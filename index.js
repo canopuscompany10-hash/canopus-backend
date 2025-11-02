@@ -6,7 +6,6 @@ import connectDB from "./database/DBConnection.js";
 import UserRouter from "./routes/User.route.js";
 import GalleryRouter from "./routes/Gallery.route.js";
 import MenuRouter from "./routes/Menu.route.js";
-
 import WorkRouter from "./routes/Work.route.js";
 import WeddingRouter from "./routes/Wedding.route.js";
 
@@ -27,7 +26,12 @@ app.use(
 );
 app.use(express.json());
 
-// Connect to
+// ✅ Add this route here (important)
+app.get("/", (req, res) => {
+  res.send("Backend is running successfully!");
+});
+
+// Connect to DB
 connectDB();
 
 // API routes
@@ -35,8 +39,7 @@ app.use("/api/user", UserRouter);
 app.use("/api/menu", MenuRouter);
 app.use("/api/gallery", GalleryRouter);
 app.use("/api/work", WorkRouter);
-app.use("/api/weddings", WeddingRouter)
-
+app.use("/api/weddings", WeddingRouter);
 
 // Start server
 app.listen(PORT, () => {
