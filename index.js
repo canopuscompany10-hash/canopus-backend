@@ -26,12 +26,17 @@ app.use(
 );
 app.use(express.json());
 
-// ✅ Add this route here (important)
+// Root route (optional)
 app.get("/", (req, res) => {
   res.send("Backend is running successfully!");
 });
 
-// Connect to DB
+// ✅ Health check endpoint to prevent Render sleeping
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+// Connect to MongoDB
 connectDB();
 
 // API routes
